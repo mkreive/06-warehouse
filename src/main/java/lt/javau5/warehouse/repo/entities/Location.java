@@ -1,7 +1,6 @@
-package lt.javau5.warehouse.entities;
+package lt.javau5.warehouse.repo.entities;
 
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity

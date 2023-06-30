@@ -1,14 +1,12 @@
-package lt.javau5.warehouse.entities;
+package lt.javau5.warehouse.controllers;
 
-import jakarta.persistence.*;
+import lt.javau5.warehouse.repo.entities.Product;
+import lt.javau5.warehouse.repo.entities.Unit;
+
 import java.util.List;
 
-@Entity
-@Table(name = "products")
-public class Product {
+public class ProductModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String name;
     private String article;
@@ -16,22 +14,16 @@ public class Product {
     private Unit unit;
     private int quantity;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "product_location",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "location_id"))
-    private List<Location> locations;
+    private List<Long> locations_id;
 
-    public Product() {
-    }
 
-    public Product(String name, String article, String description, Unit unit, int quantity, List<Location> locations) {
-        this.name = name;
-        this.article = article;
-        this.description = description;
-        this.unit = unit;
-        this.quantity = quantity;
-        this.locations = locations;
+    public ProductModel(Product product) {
+        this.name = product.getName();
+        this.article = product.getArticle();
+        this.description = product.getDescription();
+        this.unit = product.getUnit();
+        this.quantity = product.getQuantity();
+        this.locations_id= product.getLocations().stream().map(e -> e.getId()).toList();
     }
 
     public long getId() {
@@ -82,24 +74,24 @@ public class Product {
         this.quantity = quantity;
     }
 
-    public List<Location> getLocations() {
-        return locations;
+    public List<Long> getLocations_id() {
+        return locations_id;
     }
 
-    public void setLocations(List<Location> locations) {
-        this.locations = locations;
+    public void setLocations_id(List<Long> locations_id) {
+        this.locations_id = locations_id;
     }
 
     @Override
     public String toString() {
-        return "Product{" +
+        return "ProductModel{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", article='" + article + '\'' +
                 ", description='" + description + '\'' +
                 ", unit=" + unit +
                 ", quantity=" + quantity +
-                ", locations=" + locations +
+                ", locations_id=" + locations_id +
                 '}';
     }
 }
