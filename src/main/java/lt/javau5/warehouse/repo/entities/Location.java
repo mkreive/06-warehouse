@@ -1,6 +1,9 @@
 package lt.javau5.warehouse.repo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -8,39 +11,47 @@ import java.util.List;
 public class Location {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    private String row;
+    @GeneratedValue
+    private Long id;
+    @Column(name = "queue")
+    private String queue;
+    @Column(name = "stand")
     private String stand;
+    @Column(name = "shelf")
     private String shelf;
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "locations")
-    private List<Product> products;
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
+            mappedBy = "locations")
+    @JsonIgnore
+    private List<Product> products = new ArrayList<>();
 
     public Location() {
     }
 
-    public Location(String row, String stand, String shelf, List<Product> products) {
-        this.row = row;
+    public Location(String queue, String stand, String shelf, List<Product> products) {
+        this.queue = queue;
         this.stand = stand;
         this.shelf = shelf;
         this.products = products;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getRow() {
-        return row;
+    public String getQueue() {
+        return queue;
     }
 
-    public void setRow(String row) {
-        this.row = row;
+    public void setQueue(String queue) {
+        this.queue = queue;
     }
 
     public String getStand() {
@@ -66,12 +77,30 @@ public class Location {
     public void setProducts(List<Product> products) {
         this.products = products;
     }
+//
+//    public void addProduct(Product product) {
+//        product.addLocation(this);
+//        getProducts().add(product);
+//    }
+
+    public void addProduct(Product product) {
+        this.products.add(product);
+        product.getLocations().add(this);
+    }
+
+//    public void removeProduct(Long locationId) {
+//        Location location = this.locations.stream().filter(t -> t.getId() == locationId).findFirst().orElse(null);
+//        if (location != null) {
+//            this.locations.remove(location);
+//            location.getProducts().remove(this);
+//        }
+//    }
 
     @Override
     public String toString() {
         return "Location{" +
                 "id=" + id +
-                ", row='" + row + '\'' +
+                ", row='" + queue + '\'' +
                 ", stand='" + stand + '\'' +
                 ", shelf='" + shelf + '\'' +
                 ", products=" + products +

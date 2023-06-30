@@ -1,6 +1,8 @@
 package lt.javau5.warehouse.repo.entities;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -8,19 +10,28 @@ import java.util.List;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    @GeneratedValue
+    private Long id;
+    @Column(name = "name")
     private String name;
+    @Column(name = "article")
     private String article;
+    @Column(name = "description")
     private String description;
+    @Column(name = "unit")
     private Unit unit;
+    @Column(name = "quantity")
     private int quantity;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "product_location",
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "products_locations",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "location_id"))
-    private List<Location> locations;
+    private List<Location> locations = new ArrayList<>();
 
     public Product() {
     }
@@ -34,11 +45,11 @@ public class Product {
         this.locations = locations;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -88,6 +99,19 @@ public class Product {
 
     public void setLocations(List<Location> locations) {
         this.locations = locations;
+    }
+
+    public void addLocation(Location location) {
+        this.locations.add(location);
+        location.getProducts().add(this);
+    }
+
+    public void removeLocation(Long locationId) {
+        Location location = this.locations.stream().filter(t -> t.getId() == locationId).findFirst().orElse(null);
+        if (location != null) {
+            this.locations.remove(location);
+            location.getProducts().remove(this);
+        }
     }
 
     @Override
